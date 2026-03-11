@@ -37,6 +37,12 @@ RUN yes | pecl install xdebug \
     && echo "xdebug.mode=debug" >> /usr/local/etc/php/conf.d/xdebug.ini \
     && echo "xdebug.remote_autostart=off" >> /usr/local/etc/php/conf.d/xdebug.ini
 
+RUN apt-get update && apt-get install -y \
+    libicu-dev \
+    libpng-dev \
+    libzip-dev \
+    && docker-php-ext-install intl gd zip mysqli bcmath
+	
 # Copy the composer executable from the official composer image
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
