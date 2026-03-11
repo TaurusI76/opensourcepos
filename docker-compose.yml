@@ -1,27 +1,65 @@
-include:
-    - docker/docker-mysql.yml
-
 services:
-    sqlscript:
-        image: jekkos/opensourcepos:sql-master
-        command: /bin/sh -c 'exit 0'
-    ospos:
-        image: jekkos/opensourcepos:master
-        restart: always
-        depends_on:
-            - mysql
-        ports:
-            - "80:80"
-        networks:
-            - app_net
-        volumes:
-            - uploads:/app/public/uploads
-            - logs:/app/writable/logs
-        environment:
-            - CI_ENVIRONMENT=production
-            - FORCE_HTTPS=false
-            - PHP_TIMEZONE=UTC
-            - MYSQL_USERNAME=admin
-            - MYSQL_PASSWORD=pointofsale
-            - MYSQL_DB_NAME=ospos
-            - MYSQL_HOST_NAME=mysql
+  # 1. The Database
+  mysql:
+    image: mariadb:10.5
+    container_name: mysql
+    restart: unless-stopped
+    expose:
+      - "3306"
+    volumes_from:
+      - sqlscript
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD} 
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASS}
+    volumes:
+      - ${DB_DATA_PATH}:/var/lib/mysql
+      - mysql:/var/lib/mysql:rw
+      #- ./app/Database/tables.sql:/docker-entrypoint-initdb.d/1.sql
+      #- ./app/Database/constraints.sql:/docker-entrypoint-initdb.d/2.sql
+    networks:
+      - ospos_network
+
+  sqlscript:
+    image: jekkos/opensourcepos:sql-master
+    command: /bin/sh -c 'exit 0'
+
+  # 3. The OSPOS App
+  ospos:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    #image: jekkos/opensourcepos:master
+    container_name: ospos_app
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+    environment:
+      - CI_ENVIRONMENT=production
+      - FORCE_HTTPS=false
+      - MYSQL_HOST_NAME=mysql
+      - MYSQL_USERNAME=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASS}
+      - MYSQL_DB_NAME=${DB_NAME}
+    networks: 
+      - ospos_network
+    volumes:
+      - ./uploads:/app/public/uploads
+      - ./logs:/app/writable/logs
+
+networks:
+  ospos_network:
+    driver: bridge
+
+volumes:
+  uploads:
+    driver: local
+  logs:
+    driver: local
+  mysql:
+    driver: local
+  mysql_data:

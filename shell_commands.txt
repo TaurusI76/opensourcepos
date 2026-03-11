@@ -1,0 +1,3 @@
+cd ~/ospos
+nano docker-compose.yml
+git pull origin halenladen-kiosk
