@@ -1,3 +1,8 @@
 cd ~/ospos
 nano docker-compose.yml
 git pull origin halenladen-kiosk
+
+Update source from git:
+cd ~/ospos
+git pull
+docker compose up -d --build
