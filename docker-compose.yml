@@ -42,7 +42,7 @@ services:
     depends_on:
       - mysql
     environment:
-      - CI_ENVIRONMENT=production
+      - CI_ENVIRONMENT=${CI_ENVIRONMENT}
       - FORCE_HTTPS=false
       - MYSQL_HOST_NAME=mysql
       - MYSQL_USERNAME=${DB_USER}
