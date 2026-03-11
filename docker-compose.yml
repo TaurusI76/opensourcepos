@@ -30,6 +30,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - USERID=${USERID}
+        - GROUPID=${GROUPID}
 
     #image: jekkos/opensourcepos:master
     container_name: ospos_app
