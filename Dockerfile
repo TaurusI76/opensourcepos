@@ -9,6 +9,7 @@ RUN echo "date.timezone = \"\${PHP_TIMEZONE}\"" > /usr/local/etc/php/conf.d/time
 WORKDIR /app
 COPY . /app
 RUN ln -s /app/*[^public] /var/www && rm -rf /var/www/html && ln -nsf /app/public /var/www/html
+RUN mkdir -p /app/writable && chown -R ospos:ospos /app/writable && chmod -R 775 /app/writable
 RUN chmod -R 770 /app/writable/uploads /app/writable/logs /app/writable/cache && chown -R www-data:www-data /app
 
 FROM ospos AS ospos_test
