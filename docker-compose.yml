@@ -30,6 +30,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: ospos
       args:
         - USERID=${USERID}
         - GROUPID=${GROUPID}
